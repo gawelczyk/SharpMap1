@@ -19,7 +19,7 @@ namespace WindowsFormsApplication1
         {
             InitializeComponent();
 
-            //AddLocalShp();           
+            AddLocalShp();           
             //AddWmsLayer();
 
             AddLocalShpAndStyles();
@@ -33,8 +33,9 @@ namespace WindowsFormsApplication1
 
         private void AddLocalShp()
         {
-            SharpMap.Layers.VectorLayer vlay = new SharpMap.Layers.VectorLayer("States");
-            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@"C:\gis-data\msi.shp", true);
+            SharpMap.Layers.VectorLayer vlay = new SharpMap.Layers.VectorLayer("MSI Krakow");
+            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@".\data\msi.shp", true);
+            SetCS(vlay);
             mapBox1.Map.Layers.Add(vlay);
         }
 
@@ -113,10 +114,16 @@ namespace WindowsFormsApplication1
 
             mapBox1.Map.Layers.Add(vlay);
 
+            SetCS(vlay);
+        }
+
+        private void SetCS(SharpMap.Layers.VectorLayer vlay)
+        {
             ProjNet.CoordinateSystems.Transformations.CoordinateTransformationFactory ctFact = new ProjNet.CoordinateSystems.Transformations.CoordinateTransformationFactory();
             ProjNet.CoordinateSystems.CoordinateSystemFactory csFact = new ProjNet.CoordinateSystems.CoordinateSystemFactory();
             vlay.CoordinateTransformation = ctFact.CreateFromCoordinateSystems(ProjNet.CoordinateSystems.GeographicCoordinateSystem.WGS84, GetEPSG900913(csFact));
             vlay.ReverseCoordinateTransformation = ctFact.CreateFromCoordinateSystems(GetEPSG900913(csFact), ProjNet.CoordinateSystems.GeographicCoordinateSystem.WGS84);
+
         }
     }
 }
