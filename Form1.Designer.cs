@@ -1,4 +1,4 @@
-﻿namespace WindowsFormsApplication1
+﻿namespace SM1
 {
     partial class Form1
     {

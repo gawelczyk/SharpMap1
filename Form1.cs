@@ -11,7 +11,7 @@ using ProjNet;
 using GeoAPI.CoordinateSystems;
 using SharpMap.Styles;
 
-namespace WindowsFormsApplication1
+namespace SM1
 {
     public partial class Form1 : Form
     {
