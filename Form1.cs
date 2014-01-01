@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ProjNet;
 using GeoAPI.CoordinateSystems;
+using SharpMap.Styles;
 
 namespace WindowsFormsApplication1
 {
@@ -18,10 +19,13 @@ namespace WindowsFormsApplication1
         {
             InitializeComponent();
 
-            AddLocalShp();
-            AddTools();
-            AddWmsLayer();
+            //AddLocalShp();           
+            //AddWmsLayer();
 
+            AddLocalShpAndStyles();
+            AddOsm();
+
+            AddTools();
             mapBox1.Map.ZoomToExtents();
             mapBox1.Refresh();
 
@@ -79,5 +83,40 @@ namespace WindowsFormsApplication1
             return epsg900913;
         }
 
+        private void AddOsm()
+        {
+
+            mapBox1.Map.BackgroundLayer.Add(new SharpMap.Layers.TileAsyncLayer(new BruTile.Web.OsmTileSource(), "OSM"));
+
+        }
+
+        private void AddLocalShpAndStyles()
+        {
+            SharpMap.Layers.VectorLayer vlay = new SharpMap.Layers.VectorLayer("States");
+            vlay.DataSource = new SharpMap.Data.Providers.ShapeFile(@".\data\states_ugl.shp", true);
+
+            //Create the style for Land
+            VectorStyle landStyle = new VectorStyle();
+            landStyle.Fill = new SolidBrush(Color.FromArgb(232, 232, 232));
+
+            //Create the style for Water
+            VectorStyle waterStyle = new VectorStyle();
+            waterStyle.Fill = new SolidBrush(Color.FromArgb(198, 198, 255));
+
+            //Create the map
+            Dictionary<string, SharpMap.Styles.IStyle> styles = new Dictionary<string, IStyle>();
+            styles.Add("land", landStyle);
+            styles.Add("water", waterStyle);
+
+            //Assign the theme
+            vlay.Theme = new SharpMap.Rendering.Thematics.UniqueValuesTheme<string>("class", styles, landStyle);
+
+            mapBox1.Map.Layers.Add(vlay);
+
+            ProjNet.CoordinateSystems.Transformations.CoordinateTransformationFactory ctFact = new ProjNet.CoordinateSystems.Transformations.CoordinateTransformationFactory();
+            ProjNet.CoordinateSystems.CoordinateSystemFactory csFact = new ProjNet.CoordinateSystems.CoordinateSystemFactory();
+            vlay.CoordinateTransformation = ctFact.CreateFromCoordinateSystems(ProjNet.CoordinateSystems.GeographicCoordinateSystem.WGS84, GetEPSG900913(csFact));
+            vlay.ReverseCoordinateTransformation = ctFact.CreateFromCoordinateSystems(GetEPSG900913(csFact), ProjNet.CoordinateSystems.GeographicCoordinateSystem.WGS84);
+        }
     }
 }
